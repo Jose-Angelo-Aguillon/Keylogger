@@ -63,7 +63,7 @@ stopTime = time.time() + timeIter
 #Function that creates and sends an email with an attachment
 # def sendEmail(fileName,toAdd):
 #     email_address = "testcodestuff@yahoo.com"
-#     email_password = "owowflacyimjdjrc"
+#     email_password = ""
 #     msg = MIMEMultipart()
 #     msg["From"] = fromAdd
 #     msg["To"] = toAdd
